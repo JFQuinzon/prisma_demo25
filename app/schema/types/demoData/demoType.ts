@@ -12,6 +12,13 @@ export const DemoDataList = objectType({
     t.string("occupation");
   },
 });
+export const DemoDataResponse = objectType({
+  name: "DemoDataResponse",
+  definition(t) {
+    t.list.field("items", { type: DemoDataList });
+    t.int("totalCount");
+  },
+});
 
 export const DemoDataInput = inputObjectType({
   name: "DemoDataInput",
@@ -25,19 +32,20 @@ export const DemoDataInput = inputObjectType({
 export const DemoDataQuery = extendType({
   type: "Query",
   definition(t) {
-    t.nullable.list.field("DemoDataQuery", {
-      type: DemoDataList,
-      args: { data: DemoDataInput },
+    t.field("DemoDataQuery", {
+      type: DemoDataResponse,
+      args: { data: DemoDataInput! },
       async resolve(_root, args, _ctx) {
         try {
-          const result = await prisma.demoData.findMany({
-            take: args.data?.take,
-            skip: args.data?.skip,
+          const items = await prisma.demoData.findMany({
+            take: args.data?.take ?? undefined,
+            skip: args.data?.skip ?? undefined,
             // where: {
             //   id: Number(args?.data?.id)
             // },
           });
-          return result;
+          const totalCount = await prisma.demoData.count();
+          return { items, totalCount };
         } catch (error) {
           console.log(error);
         }

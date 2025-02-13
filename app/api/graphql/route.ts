@@ -2,6 +2,7 @@
 import { createYoga } from "graphql-yoga";
 import { makeSchema } from "nexus";
 import * as mySchemas from "../../schema/types";
+// import * as cors from "cors";
 
 interface NextContext {
   params: Promise<Record<string, string>>;
@@ -17,6 +18,10 @@ const { handleRequest } = createYoga<NextContext>({
   schema,
   graphqlEndpoint: "/api/graphql",
   fetchAPI: { Response },
+  cors: {
+    origin: "*",
+    credentials: true,
+  },
 });
 
 export {
